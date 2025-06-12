@@ -1,0 +1,46 @@
+{
+  "name": "galaga-shooting-game",
+  "version": "1.0.0",
+  "description": "ギャラガ風シューティングゲーム - HTML5 Canvas で作られたクラシックアーケードゲーム",
+  "main": "electron-main.js",
+  "author": "Galaga Game Developer",
+  "license": "MIT",
+  "homepage": "./",
+  "scripts": {
+    "electron": "electron .",
+    "electron-dev": "NODE_ENV=development electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never"
+  },
+  "build": {
+    "appId": "com.galagagame.app",
+    "productName": "ギャラガ風シューティングゲーム",
+    "directories": {
+      "output": "electron-dist"
+    },
+    "files": [
+      "electron-main.js",
+      "galaga-game.html",
+      "game.js",
+      "game.css",
+      "generated-icon.png"
+    ],
+    "mac": {
+      "icon": "generated-icon.png",
+      "category": "public.app-category.games"
+    },
+    "win": {
+      "icon": "generated-icon.png",
+      "target": "nsis"
+    },
+    "linux": {
+      "icon": "generated-icon.png",
+      "category": "Game",
+      "target": "AppImage"
+    }
+  },
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  }
+}

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Galaga-Style Shooting Game</title>
+    <link rel="stylesheet" href="game.css">
+</head>
+<body>
+    <div class="game-container">
+        <div class="game-header">
+            <div class="score-display">
+                <span>Score: <span id="score">0</span></span>
+                <span>Lives: <span id="lives">3</span></span>
+                <span>Level: <span id="level">1</span></span>
+            </div>
+        </div>
+        
+        <canvas id="gameCanvas" width="800" height="600"></canvas>
+        
+        <div class="game-controls">
+            <div class="controls-info">
+                <p><strong>Controls:</strong></p>
+                <p>Arrow Keys or WASD: Move</p>
+                <p>Spacebar: Shoot</p>
+                <p>M: Toggle Audio</p>
+                <p>R: Restart (when game over)</p>
+            </div>
+            <div class="audio-controls">
+                <span id="muteIndicator">🔊 AUDIO ON</span>
+            </div>
+        </div>
+        
+        <div id="gameOverScreen" class="game-over hidden">
+            <div class="game-over-content">
+                <h2>Game Over</h2>
+                <p>Final Score: <span id="finalScore">0</span></p>
+                <p>Level Reached: <span id="finalLevel">1</span></p>
+                <button id="restartBtn">Play Again</button>
+            </div>
+        </div>
+        
+        <div id="startScreen" class="start-screen">
+            <div class="start-screen-content">
+                <h1>Galaga-Style Shooter</h1>
+                <p>Destroy all enemies to advance to the next level!</p>
+                <button id="startBtn">Start Game</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="game.js"></script>
+</body>
+</html>
