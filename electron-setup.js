@@ -1,6 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const { spawn } = require('child_process');
+import fs from 'fs';
+import path, { dirname } from 'path';
+import { spawn } from 'child_process';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Setup script for Electron application
 class ElectronSetup {
@@ -56,16 +60,16 @@ class ElectronSetup {
     }
 
     installDependencies() {
-        return new Promise((resolve, reject) => {
+        return new Promise(async (resolve, reject) => {
             console.log('依存関係をインストール中...');
             
-            // Check if electron is already installed
+            // Check if electron is already installed (ESM dynamic import)
             try {
-                require.resolve('electron');
+                await import('electron');
                 console.log('✓ Electronは既にインストールされています');
                 resolve();
                 return;
-            } catch (e) {
+            } catch (_e) {
                 // Electron not found, install it
             }
 
@@ -95,28 +99,38 @@ class ElectronSetup {
     startElectron() {
         return new Promise((resolve, reject) => {
             console.log('Electronアプリケーションを起動中...');
-            
-            try {
-                const electronPath = require('electron');
-                const app = spawn(electronPath, ['electron-main.js'], {
-                    stdio: 'inherit',
-                    cwd: __dirname
-                });
 
-                app.on('close', (code) => {
-                    console.log(`アプリケーションが終了しました (終了コード: ${code})`);
-                    resolve();
-                });
+            const isWin = process.platform === 'win32';
+            const localBin = path.join(__dirname, 'node_modules', '.bin', isWin ? 'electron.cmd' : 'electron');
 
-                app.on('error', (err) => {
-                    console.error('アプリケーションの起動に失敗しました:', err.message);
-                    reject(err);
-                });
+            let cmd;
+            let args;
 
-            } catch (err) {
-                console.error('Electronが見つかりません:', err.message);
-                reject(err);
+            if (fs.existsSync(localBin)) {
+                // ローカルにインストールされたElectronを使用
+                cmd = localBin;
+                args = ['electron-main.js'];
+            } else {
+                // npx経由で起動
+                cmd = isWin ? 'npx.cmd' : 'npx';
+                args = ['electron', 'electron-main.js'];
             }
+
+            const app = spawn(cmd, args, {
+                stdio: 'inherit',
+                cwd: __dirname,
+                shell: false,
+            });
+
+            app.on('close', (code) => {
+                console.log(`アプリケーションが終了しました (終了コード: ${code})`);
+                resolve();
+            });
+
+            app.on('error', (err) => {
+                console.error('アプリケーションの起動に失敗しました:', err.message);
+                reject(err);
+            });
         });
     }
 
@@ -152,9 +166,9 @@ class ElectronSetup {
 }
 
 // Run setup if this script is executed directly
-if (require.main === module) {
+if (import.meta.main) {
     const setup = new ElectronSetup();
     setup.run();
 }
 
-module.exports = ElectronSetup;
+export default ElectronSetup;

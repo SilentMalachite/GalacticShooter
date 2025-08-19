@@ -39,7 +39,7 @@ class AudioManager {
             this.musicGain.gain.value = 0.3; // Lower volume for background music
             
             gameConfig.audioContext = this.audioContext;
-        } catch (e) {
+        } catch (_e) {
             console.warn('Web Audio API not supported');
         }
     }
@@ -694,7 +694,7 @@ class Enemy {
         }
     }
 
-    updateAttacking(deltaTime) {
+    updateAttacking(_deltaTime) {
         const dx = player.x - this.x;
         const dy = player.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
@@ -1177,7 +1177,7 @@ function init() {
     // Set up event listeners
     document.addEventListener('keydown', handleKeyDown);
     document.addEventListener('keyup', handleKeyUp);
-    document.getElementById('startBtn').addEventListener('click', (e) => {
+    document.getElementById('startBtn').addEventListener('click', (_e) => {
         // Resume audio context on user interaction (required by browser autoplay policies)
         if (audioManager.audioContext && audioManager.audioContext.state === 'suspended') {
             audioManager.audioContext.resume();
@@ -1185,7 +1185,7 @@ function init() {
         audioManager.playMenuConfirm();
         startGame();
     });
-    document.getElementById('restartBtn').addEventListener('click', (e) => {
+    document.getElementById('restartBtn').addEventListener('click', (_e) => {
         if (audioManager.audioContext && audioManager.audioContext.state === 'suspended') {
             audioManager.audioContext.resume();
         }
@@ -1451,7 +1451,7 @@ function updateBullets(deltaTime) {
     });
 }
 
-function updateHomingBullet(bullet, deltaTime) {
+function updateHomingBullet(bullet, _deltaTime) {
     // Homing bullets track the player
     const dx = (player.x + player.width / 2) - bullet.x;
     const dy = (player.y + player.height / 2) - bullet.y;
@@ -1477,7 +1477,7 @@ function updateHomingBullet(bullet, deltaTime) {
     }
 }
 
-function updateBombBullet(bullet, deltaTime) {
+function updateBombBullet(bullet, _deltaTime) {
     // Bombs fall with gravity
     bullet.vy = bullet.vy || bullet.speed;
     bullet.vy += bullet.gravity;
@@ -1763,7 +1763,7 @@ function drawBullets(ctx) {
         ctx.fillStyle = bullet.color;
         
         switch (bullet.type) {
-            case 'homing':
+            case 'homing': {
                 // Pulsing homing missile
                 const pulseSize = Math.sin(Date.now() * 0.01) * 2;
                 ctx.fillRect(bullet.x - pulseSize, bullet.y - pulseSize, 
@@ -1774,6 +1774,7 @@ function drawBullets(ctx) {
                 ctx.fillRect(bullet.x - 10, bullet.y + bullet.height, 3, 8);
                 ctx.fillRect(bullet.x + bullet.width + 7, bullet.y + bullet.height, 3, 8);
                 break;
+            }
                 
             case 'bomb':
                 // Spinning bomb visual

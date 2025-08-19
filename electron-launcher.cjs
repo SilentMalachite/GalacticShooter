@@ -107,7 +107,7 @@ async function main() {
             require.resolve('electron');
             electronAvailable = true;
             console.log('✓ Electron利用可能');
-        } catch (e) {
+        } catch (_e) {
             console.log('Electronが見つかりません、インストールします...');
         }
 

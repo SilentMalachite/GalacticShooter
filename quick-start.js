@@ -3,7 +3,6 @@
 // Quick start script for Galaga Electron app
 import { spawn } from 'child_process';
 import fs from 'fs';
-import path from 'path';
 
 console.log('ギャラガ風シューティングゲーム - クイックスタート');
 

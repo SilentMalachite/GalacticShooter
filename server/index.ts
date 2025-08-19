@@ -1,10 +1,59 @@
 import express, { type Request, Response, NextFunction } from "express";
+import morgan from "morgan";
+import rateLimit from "express-rate-limit";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
+// Minimal security headers (avoid helmet dependency for now)
+app.use((_req, res, next) => {
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");
+  res.setHeader("Referrer-Policy", "no-referrer");
+  const isDev = app.get("env") === "development";
+  // CSP: 開発はViteやeval等を許容。本番は厳格に。
+  const cspDev = [
+    "default-src 'self'",
+    "img-src 'self' data: blob:",
+    "media-src 'self' blob:",
+    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
+    "connect-src 'self' ws: http: https:",
+    "font-src 'self' data:",
+  ].join('; ');
+  const cspProd = [
+    "default-src 'self'",
+    "img-src 'self' data: blob:",
+    "media-src 'self' blob:",
+    "style-src 'self' 'unsafe-inline'",
+    "script-src 'self'",
+    "connect-src 'self'",
+    "font-src 'self' data:",
+  ].join('; ');
+  res.setHeader("Content-Security-Policy", isDev ? cspDev : cspProd);
+  next();
+});
+
+// Access log for non-API routes (API has custom logger below)
+app.use(
+  morgan("tiny", {
+    skip: (req) => req.path.startsWith("/api"),
+  }),
+);
+
+// Basic API rate limiting
+app.use(
+  "/api",
+  rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    limit: 120, // 120 req/min per IP
+    standardHeaders: "draft-7",
+    legacyHeaders: false,
+  }),
+);
 
 app.use((req, res, next) => {
   const start = Date.now();
@@ -43,8 +92,11 @@ app.use((req, res, next) => {
     const status = err.status || err.statusCode || 500;
     const message = err.message || "Internal Server Error";
 
+    // Respond to client and log, but do not crash the server
     res.status(status).json({ message });
-    throw err;
+    try {
+      log(`error ${status}: ${message}`);
+    } catch {}
   });
 
   // importantly only setup vite in development and after

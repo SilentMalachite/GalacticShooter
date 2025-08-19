@@ -131,16 +131,10 @@ start-electron.bat
 ./start-electron.sh
 ```
 
-#### 手動での起動:
+#### npmスクリプトでの起動:
 ```bash
-# Node.jsがインストールされていることを確認
-node --version
-
-# Electronの依存関係をインストール
-npm install electron electron-builder
-
-# Electronアプリケーションを起動
-npx electron electron-main.js
+npm run electron          # 本番相当
+npm run electron:dev      # 開発モード（DevTools 有効）
 ```
 
 ### Webブラウザでの実行
@@ -154,7 +148,13 @@ npm install
 npm run dev
 ```
 
-ブラウザで `http://localhost:5000/galaga-game.html` にアクセス
+ブラウザで以下にアクセスできます：
+- `http://localhost:5000/`（React UI トップ）
+- `http://localhost:5000/galaga`（ゲームランディング → `galaga-game.html`へリダイレクト）
+- `http://localhost:5000/galaga-game.html`（スタンドアロンHTML版）
+- `http://localhost:5000/embed/galaga`（アプリ内埋め込みページ・iframeでゲームを表示）
+
+API ヘルスチェック: `http://localhost:5000/api/health`
 
 #### 直接実行
 HTMLファイルを直接ブラウザで開くことも可能です。
@@ -164,14 +164,50 @@ HTMLファイルを直接ブラウザで開くことも可能です。
 実行可能ファイルを作成する場合：
 
 ```bash
-# 必要な依存関係をインストール
-npm install electron electron-builder
+# 依存インストール
+npm install
 
-# アプリケーションをビルド
-npx electron-builder
+# ルートpackage.jsonの設定を使ってビルド
+npm run electron:build
+
+# 直接コマンドで実行したい場合（同等）
+npx electron-builder --publish=never
 ```
 
-ビルドされたアプリケーションは `electron-dist` フォルダに作成されます。
+- 生成物は `electron-dist/` に出力されます（macOSで`.app`、WindowsでNSIS、LinuxでAppImageなど）。
+- コード署名/公証は未設定です。配布する場合は各OSの証明書設定をご準備ください。
+- ビルド設定はルート`package.json`の`build`フィールドを使用します（`electron-package.json`は互換目的で残置）。
+
+### 開発ユーティリティ（Lint/Format/型チェック）
+
+```bash
+# Lint（ESLint v9 フラット設定）
+npm run lint
+
+# フォーマット（Prettier）
+npm run format
+
+# TypeScript 型チェック
+npm run check
+```
+
+- ルール補足：未使用変数はエラー（ただし`_`で始まる名前は許容）。`switch` のフォールスルーは禁止。
+
+## 🧪 CI（GitHub Actions）
+
+本リポジトリにはCIワークフロー（`.github/workflows/ci.yml`）が含まれ、以下を検証します：
+
+- 依存インストール（Node 20.x）
+- Lint（ESLint v9 フラット設定）
+- TypeScript 型チェック
+- Prettier チェック
+- ビルド（web + server）
+
+Electronパッケージの生成はCIではデフォルトでスキップしています（OS依存のため）。必要に応じてOS別のワークフローを追加してください。
+
+## 🤝 開発・貢献
+
+開発への参加方法やPRチェックリストは `CONTRIBUTING.md` を参照してください。セキュリティ連絡や依存監査の方針は `SECURITY.md` を参照してください。
 
 ## 🎨 カスタマイズ
 

@@ -1,6 +1,10 @@
-const { app, BrowserWindow, Menu, shell } = require('electron');
-const path = require('path');
-const fs = require('fs');
+import { app, BrowserWindow, Menu, shell } from 'electron';
+import path, { dirname } from 'path';
+import fs from 'fs';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 // Keep a global reference of the window object
 let mainWindow;
@@ -194,7 +198,7 @@ app.on('activate', () => {
 
 // Security: Prevent new window creation
 app.on('web-contents-created', (event, contents) => {
-  contents.on('new-window', (event, navigationUrl) => {
+  contents.on('new-window', (event, _navigationUrl) => {
     event.preventDefault();
   });
   
